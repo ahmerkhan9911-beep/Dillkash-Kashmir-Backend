@@ -1,0 +1,91 @@
+-- DillKash Kashmir — Database Schema
+-- MySQL 8.0+
+
+CREATE DATABASE IF NOT EXISTS `dillkash_kashmir` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `dillkash_kashmir`;
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  full_name VARCHAR(100) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(20) NOT NULL DEFAULT '',
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS packages (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  slug VARCHAR(255) NOT NULL,
+  title VARCHAR(200) NOT NULL,
+  short_description TEXT,
+  full_description TEXT,
+  duration_days TINYINT UNSIGNED NOT NULL DEFAULT 1,
+  package_type VARCHAR(100) DEFAULT '',
+  price DECIMAL(10,2) NOT NULL DEFAULT 0,
+  rating DECIMAL(2,1) DEFAULT 0,
+  reviews_count INT UNSIGNED DEFAULT 0,
+  image_url TEXT,
+  departure_city VARCHAR(100) DEFAULT 'Lahore',
+  departure_day VARCHAR(100) DEFAULT '',
+  transport TEXT,
+  accommodation TEXT,
+  meals TEXT,
+  featured TINYINT(1) NOT NULL DEFAULT 0,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  next_departure VARCHAR(100) DEFAULT '',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS package_destinations (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  package_id INT UNSIGNED NOT NULL,
+  destination_name VARCHAR(200) NOT NULL,
+  sort_order TINYINT UNSIGNED DEFAULT 0,
+  FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS package_itineraries (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  package_id INT UNSIGNED NOT NULL,
+  day_number TINYINT UNSIGNED NOT NULL,
+  title VARCHAR(200) NOT NULL,
+  sort_order TINYINT UNSIGNED DEFAULT 0,
+  FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS package_itinerary_details (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  itinerary_id INT UNSIGNED NOT NULL,
+  detail_text TEXT NOT NULL,
+  sort_order TINYINT UNSIGNED DEFAULT 0,
+  FOREIGN KEY (itinerary_id) REFERENCES package_itineraries(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS package_inclusions (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  package_id INT UNSIGNED NOT NULL,
+  item_text TEXT NOT NULL,
+  sort_order TINYINT UNSIGNED DEFAULT 0,
+  FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS package_exclusions (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  package_id INT UNSIGNED NOT NULL,
+  item_text TEXT NOT NULL,
+  sort_order TINYINT UNSIGNED DEFAULT 0,
+  FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS package_gallery (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  package_id INT UNSIGNED NOT NULL,
+  image_url TEXT NOT NULL,
+  sort_order TINYINT UNSIGNED DEFAULT 0,
+  FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

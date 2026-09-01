@@ -1,0 +1,25 @@
+{
+  "name": "dillkash-kashmir-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "db:setup": "node src/database/setup.js",
+    "db:schema": "node src/database/init-schema.js",
+    "db:seed": "node src/database/seed.js",
+    "db:seed-admin": "node src/database/seed-admin.js",
+    "init-db": "node src/database/setup.js",
+    "seed-admin": "node src/database/seed-admin.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.5"
+  }
+}
