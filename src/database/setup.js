@@ -15,6 +15,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import mysql from "mysql2/promise";
 import { seedPackages } from "./seed.js";
+import { seedDestinations } from "./seed-destinations.js";
 import { seedAdmin } from "./seed-admin.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -97,12 +98,17 @@ async function runSetup() {
     console.log();
 
     // Step 4: Seed Tour Packages
-    console.log(`📦 [3/4] Checking and seeding tour packages...`);
+    console.log(`📦 [3/5] Checking and seeding tour packages...`);
     const packageStats = await seedPackages(dbPool);
     console.log(`✅ Packages: ${packageStats.seededCount} new seeded, ${packageStats.skippedCount} already existed (Total: ${packageStats.total}).\n`);
 
-    // Step 5: Seed Admin Account
-    console.log(`👑 [4/4] Ensuring default admin account...`);
+    // Step 5: Seed Destinations
+    console.log(`📍 [4/5] Checking and seeding destinations...`);
+    const destStats = await seedDestinations(dbPool);
+    console.log(`✅ Destinations: ${destStats.seededCount} new seeded, ${destStats.skippedCount} already existed (Total: ${destStats.total}).\n`);
+
+    // Step 6: Seed Admin Account
+    console.log(`👑 [5/5] Ensuring default admin account...`);
     const adminInfo = await seedAdmin(dbPool);
     console.log(`\n==================================================`);
     console.log("🎉 Database setup completed successfully!");

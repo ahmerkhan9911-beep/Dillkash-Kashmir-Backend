@@ -1,8 +1,14 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import authRoutes from "./routes/auth.routes.js";
 import packageRoutes from "./routes/package.routes.js";
+import destinationRoutes from "./routes/destination.routes.js";
+import uploadRoutes from "./routes/upload.routes.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -24,7 +30,8 @@ app.use(
       if (!origin) return callback(null, true);
       if (
         allowedOrigins.includes(origin) ||
-        /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
+        /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+        origin.endsWith(".devtunnels.ms")
       ) {
         return callback(null, true);
       }
@@ -35,9 +42,16 @@ app.use(
 );
 app.use(express.json({ limit: "5mb" }));
 
+// --------------- Static files ---------------
+// Serve uploaded images from server/public/uploads as /uploads/<filename>
+app.use(express.static(path.join(__dirname, "../public")));
+
+
 // --------------- Routes ---------------
 app.use("/api/auth", authRoutes);
 app.use("/api/packages", packageRoutes);
+app.use("/api/destinations", destinationRoutes);
+app.use("/api", uploadRoutes);
 
 // Health check
 app.get("/api/health", (_req, res) => {

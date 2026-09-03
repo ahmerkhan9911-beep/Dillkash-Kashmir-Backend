@@ -50,3 +50,14 @@ export const packageValidation = [
   body("price")
     .isFloat({ min: 0 }).withMessage("Price must be a positive number"),
 ];
+
+export const destinationValidation = [
+  body("name")
+    .trim()
+    .notEmpty().withMessage("Destination name is required")
+    .isLength({ max: 200 }).withMessage("Name too long"),
+  body("cover_image")
+    .trim()
+    .notEmpty().withMessage("Cover image is required"),
+];
+
