@@ -61,3 +61,32 @@ export const destinationValidation = [
     .notEmpty().withMessage("Cover image is required"),
 ];
 
+export const guideValidation = [
+  body("name")
+    .trim()
+    .notEmpty().withMessage("Guide name is required")
+    .isLength({ min: 2, max: 100 }).withMessage("Name must be 2-100 characters"),
+  body("role")
+    .trim()
+    .notEmpty().withMessage("Role is required")
+    .isLength({ min: 2, max: 100 }).withMessage("Role must be 2-100 characters"),
+  body("experience")
+    .isInt({ min: 1, max: 50 }).withMessage("Experience must be 1-50 years"),
+];
+
+export const hotelValidation = [
+  body("name")
+    .trim()
+    .notEmpty().withMessage("Hotel name is required")
+    .isLength({ max: 200 }).withMessage("Name too long"),
+  body("location")
+    .trim()
+    .notEmpty().withMessage("Location is required"),
+  body("star_rating")
+    .optional()
+    .isInt({ min: 1, max: 5 }).withMessage("Star rating must be 1-5"),
+  body("price_per_night")
+    .optional()
+    .isFloat({ min: 0 }).withMessage("Price must be a positive number"),
+];
+
