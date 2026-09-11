@@ -1,6 +1,7 @@
 import { validationResult } from "express-validator";
 import { PackageModel } from "../models/package.model.js";
 import { UserModel } from "../models/user.model.js";
+import { BookingModel } from "../models/booking.model.js";
 
 /** GET /api/packages — public */
 export async function getAllPackages(req, res) {
@@ -120,14 +121,16 @@ export async function togglePackageStatus(req, res) {
 /** GET /api/packages/admin/stats — admin only */
 export async function getStats(req, res) {
   try {
-    const [totalPackages, activePackages, featuredPackages, totalUsers] =
+    const [totalPackages, activePackages, featuredPackages, totalUsers, totalBookings, pendingBookings] =
       await Promise.all([
         PackageModel.countAll(),
         PackageModel.countActive(),
         PackageModel.countFeatured(),
         UserModel.countAll(),
+        BookingModel.countAll(),
+        BookingModel.countPending(),
       ]);
-    res.json({ totalPackages, activePackages, featuredPackages, totalUsers });
+    res.json({ totalPackages, activePackages, featuredPackages, totalUsers, totalBookings, pendingBookings });
   } catch (err) {
     console.error("Stats error:", err);
     res.status(500).json({ error: "Failed to fetch stats" });
