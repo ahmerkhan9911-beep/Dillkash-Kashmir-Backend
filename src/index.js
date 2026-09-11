@@ -10,6 +10,7 @@ import guideRoutes from "./routes/guide.routes.js";
 import hotelRoutes from "./routes/hotel.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import blogRoutes from "./routes/blog.routes.js";
+import bookingRoutes from "./routes/booking.routes.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -57,6 +58,7 @@ app.use("/api/destinations", destinationRoutes);
 app.use("/api/guides", guideRoutes);
 app.use("/api/hotels", hotelRoutes);
 app.use("/api/blogs", blogRoutes);
+app.use("/api/bookings", bookingRoutes);
 app.use("/api", uploadRoutes);
 
 // Health check

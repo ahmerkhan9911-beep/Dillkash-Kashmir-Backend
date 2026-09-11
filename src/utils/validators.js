@@ -90,3 +90,21 @@ export const hotelValidation = [
     .isFloat({ min: 0 }).withMessage("Price must be a positive number"),
 ];
 
+export const bookingValidation = [
+  body("fullName")
+    .trim()
+    .notEmpty().withMessage("Full name is required")
+    .isLength({ min: 2, max: 150 }).withMessage("Name must be 2-150 characters"),
+  body("phoneNumber")
+    .trim()
+    .notEmpty().withMessage("Phone number is required")
+    .matches(/^(\+?92|0)?\d{10,11}$/).withMessage("Enter a valid phone number (e.g. 03001234567)"),
+  body("adults")
+    .optional()
+    .isInt({ min: 1, max: 50 }).withMessage("Adults must be between 1 and 50"),
+  body("kids")
+    .optional()
+    .isInt({ min: 0, max: 30 }).withMessage("Kids must be between 0 and 30"),
+];
+
+
