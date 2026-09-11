@@ -18,8 +18,17 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // --------------- Middleware ---------------
+// CLIENT_URL  — single origin (legacy, kept for backwards-compat)
+// CLIENT_URLS — comma-separated list of allowed origins for multi-domain setups
+//   e.g.  CLIENT_URLS=https://dillkashkashmir.com,https://www.dillkashkashmir.com
+const extraOrigins = (process.env.CLIENT_URLS || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  ...extraOrigins,
   "http://localhost:5173",
   "http://localhost:8080",
   "http://localhost:3000",
@@ -30,7 +39,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, Postman)
+      // Allow requests with no origin (mobile apps, curl, Postman, same-origin SSR)
       if (!origin) return callback(null, true);
       if (
         allowedOrigins.includes(origin) ||
@@ -39,7 +48,10 @@ app.use(
       ) {
         return callback(null, true);
       }
-      callback(new Error("Not allowed by CORS"));
+      // Log the blocked origin so it's visible in production server logs
+      console.warn(`[CORS] Blocked request from origin: ${origin}`);
+      console.warn(`[CORS] Allowed origins: ${allowedOrigins.join(", ")}`);
+      callback(new Error(`CORS: origin '${origin}' is not allowed. Add it to CLIENT_URL or CLIENT_URLS in the server .env`));
     },
     credentials: true,
   })
