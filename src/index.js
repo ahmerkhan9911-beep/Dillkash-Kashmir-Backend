@@ -11,6 +11,8 @@ import hotelRoutes from "./routes/hotel.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import blogRoutes from "./routes/blog.routes.js";
 import bookingRoutes from "./routes/booking.routes.js";
+import customTourRoutes from "./routes/custom-tour.routes.js";
+import pool from "./config/db.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -71,11 +73,18 @@ app.use("/api/guides", guideRoutes);
 app.use("/api/hotels", hotelRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/custom-tours", customTourRoutes);
 app.use("/api", uploadRoutes);
 
 // Health check
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
+app.get("/api/health", async (_req, res) => {
+  try {
+    await pool.execute("SELECT 1");
+    res.json({ status: "ok", database: "connected", timestamp: new Date().toISOString() });
+  } catch (err) {
+    console.error("Health check DB error:", err);
+    res.status(500).json({ status: "error", database: "disconnected", details: err.message, timestamp: new Date().toISOString() });
+  }
 });
 
 // --------------- Global Error Handler ---------------

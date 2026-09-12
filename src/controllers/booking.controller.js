@@ -1,7 +1,7 @@
 import { validationResult } from "express-validator";
 import { BookingModel } from "../models/booking.model.js";
 
-/** POST /api/bookings — public */
+/** POST /api/bookings — authenticated users */
 export async function createBooking(req, res) {
   try {
     const errors = validationResult(req);
@@ -12,8 +12,10 @@ export async function createBooking(req, res) {
     const { fullName, phoneNumber, selectedTour, travelDate, adults, kids, room } = req.body;
 
     const id = await BookingModel.create({
+      userId: req.user.id,
       fullName,
       phoneNumber,
+      email: req.user.email || "",
       selectedTour: selectedTour || "",
       travelDate: travelDate || null,
       adults: Number(adults) || 1,
@@ -29,7 +31,7 @@ export async function createBooking(req, res) {
     });
   } catch (err) {
     console.error("Create booking error:", err);
-    res.status(500).json({ error: "Failed to submit booking" });
+    res.status(500).json({ error: "Database Error", details: err.message || "Failed to submit booking" });
   }
 }
 
@@ -41,7 +43,18 @@ export async function getAllBookings(req, res) {
     res.json({ bookings });
   } catch (err) {
     console.error("Get bookings error:", err);
-    res.status(500).json({ error: "Failed to fetch bookings" });
+    res.status(500).json({ error: "Database Error", details: err.message || "Failed to fetch bookings" });
+  }
+}
+
+/** GET /api/bookings/my — authenticated user's own bookings */
+export async function getMyBookings(req, res) {
+  try {
+    const bookings = await BookingModel.findByUserId(req.user.id);
+    res.json({ bookings });
+  } catch (err) {
+    console.error("Get my bookings error:", err);
+    res.status(500).json({ error: "Database Error", details: err.message || "Failed to fetch your bookings" });
   }
 }
 
@@ -59,7 +72,7 @@ export async function getBooking(req, res) {
     res.json({ booking });
   } catch (err) {
     console.error("Get booking error:", err);
-    res.status(500).json({ error: "Failed to fetch booking" });
+    res.status(500).json({ error: "Database Error", details: err.message || "Failed to fetch booking" });
   }
 }
 
@@ -87,7 +100,7 @@ export async function updateBookingStatus(req, res) {
     res.json({ message: "Booking status updated", booking: updated });
   } catch (err) {
     console.error("Update booking status error:", err);
-    res.status(500).json({ error: "Failed to update booking status" });
+    res.status(500).json({ error: "Database Error", details: err.message || "Failed to update booking status" });
   }
 }
 
@@ -108,6 +121,6 @@ export async function deleteBooking(req, res) {
     res.json({ message: "Booking deleted successfully" });
   } catch (err) {
     console.error("Delete booking error:", err);
-    res.status(500).json({ error: "Failed to delete booking" });
+    res.status(500).json({ error: "Database Error", details: err.message || "Failed to delete booking" });
   }
 }

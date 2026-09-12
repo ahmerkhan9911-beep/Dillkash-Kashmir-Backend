@@ -4,8 +4,10 @@ export const BookingModel = {
   /**
    * Create a new booking record.
    * @param {object} data
+   * @param {number|null} [data.userId]
    * @param {string} data.fullName
    * @param {string} data.phoneNumber
+   * @param {string} [data.email]
    * @param {string} [data.selectedTour]
    * @param {string} [data.travelDate]   - ISO date string "YYYY-MM-DD"
    * @param {number} [data.adults]
@@ -13,11 +15,11 @@ export const BookingModel = {
    * @param {string} [data.roomType]
    * @returns {Promise<number>} The inserted row's id.
    */
-  async create({ fullName, phoneNumber, selectedTour = "", travelDate = null, adults = 1, kids = 0, roomType = "Standard Double" }) {
+  async create({ userId = null, fullName, phoneNumber, email = "", selectedTour = "", travelDate = null, adults = 1, kids = 0, roomType = "Standard Double" }) {
     const [result] = await pool.execute(
-      `INSERT INTO bookings (full_name, phone_number, selected_tour, travel_date, adults, kids, room_type)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [fullName, phoneNumber, selectedTour, travelDate || null, adults, kids, roomType]
+      `INSERT INTO bookings (user_id, full_name, phone_number, email, selected_tour, travel_date, adults, kids, room_type)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [userId, fullName, phoneNumber, email, selectedTour, travelDate || null, adults, kids, roomType]
     );
     return result.insertId;
   },
@@ -49,6 +51,19 @@ export const BookingModel = {
     }
     sql += " ORDER BY created_at DESC";
     const [rows] = await pool.execute(sql, params);
+    return rows;
+  },
+
+  /**
+   * Get all bookings for a specific user, newest first.
+   * @param {number} userId
+   * @returns {Promise<object[]>}
+   */
+  async findByUserId(userId) {
+    const [rows] = await pool.execute(
+      "SELECT * FROM bookings WHERE user_id = ? ORDER BY created_at DESC",
+      [userId]
+    );
     return rows;
   },
 

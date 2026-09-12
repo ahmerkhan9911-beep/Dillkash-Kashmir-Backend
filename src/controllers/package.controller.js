@@ -2,6 +2,7 @@ import { validationResult } from "express-validator";
 import { PackageModel } from "../models/package.model.js";
 import { UserModel } from "../models/user.model.js";
 import { BookingModel } from "../models/booking.model.js";
+import { CustomTourModel } from "../models/custom-tour.model.js";
 
 /** GET /api/packages — public */
 export async function getAllPackages(req, res) {
@@ -121,18 +122,27 @@ export async function togglePackageStatus(req, res) {
 /** GET /api/packages/admin/stats — admin only */
 export async function getStats(req, res) {
   try {
-    const [totalPackages, activePackages, featuredPackages, totalUsers, totalBookings, pendingBookings] =
-      await Promise.all([
-        PackageModel.countAll(),
-        PackageModel.countActive(),
-        PackageModel.countFeatured(),
-        UserModel.countAll(),
-        BookingModel.countAll(),
-        BookingModel.countPending(),
-      ]);
-    res.json({ totalPackages, activePackages, featuredPackages, totalUsers, totalBookings, pendingBookings });
+    const [
+      totalPackages,
+      activePackages,
+      featuredPackages,
+      totalUsers,
+      totalBookings,
+      pendingBookings,
+      pendingCustomTours,
+    ] = await Promise.all([
+      PackageModel.countAll(),
+      PackageModel.countActive(),
+      PackageModel.countFeatured(),
+      UserModel.countAll(),
+      BookingModel.countAll(),
+      BookingModel.countPending(),
+      CustomTourModel.countPending(),
+    ]);
+
+    res.json({ totalPackages, activePackages, featuredPackages, totalUsers, totalBookings, pendingBookings, pendingCustomTours });
   } catch (err) {
     console.error("Stats error:", err);
-    res.status(500).json({ error: "Failed to fetch stats" });
+    res.status(500).json({ error: "Database Error", details: err.message || "Failed to fetch stats" });
   }
 }

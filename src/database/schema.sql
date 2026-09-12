@@ -154,13 +154,34 @@ CREATE TABLE IF NOT EXISTS blogs (
 
 CREATE TABLE IF NOT EXISTS bookings (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED DEFAULT NULL,
   full_name VARCHAR(150) NOT NULL,
   phone_number VARCHAR(30) NOT NULL,
+  email VARCHAR(255) DEFAULT '',
   selected_tour VARCHAR(255) DEFAULT '',
   travel_date DATE DEFAULT NULL,
   adults TINYINT UNSIGNED NOT NULL DEFAULT 1,
   kids TINYINT UNSIGNED NOT NULL DEFAULT 0,
   room_type VARCHAR(100) DEFAULT 'Standard Double',
   status ENUM('Pending', 'Confirmed', 'Cancelled') NOT NULL DEFAULT 'Pending',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS custom_tour_requests (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED DEFAULT NULL,
+  name VARCHAR(150) NOT NULL,
+  phone_number VARCHAR(30) NOT NULL,
+  email VARCHAR(255) DEFAULT '',
+  preferred_date DATE DEFAULT NULL,
+  adults TINYINT UNSIGNED NOT NULL DEFAULT 1,
+  kids TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  hotel_preference VARCHAR(100) DEFAULT '',
+  transport_preference VARCHAR(100) DEFAULT '',
+  preferred_destinations JSON,
+  message TEXT,
+  status ENUM('Pending', 'Approved', 'Rejected') NOT NULL DEFAULT 'Pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

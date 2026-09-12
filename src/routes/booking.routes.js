@@ -3,6 +3,7 @@ import {
   createBooking,
   getAllBookings,
   getBooking,
+  getMyBookings,
   updateBookingStatus,
   deleteBooking,
 } from "../controllers/booking.controller.js";
@@ -11,8 +12,11 @@ import { bookingValidation } from "../utils/validators.js";
 
 const router = Router();
 
-// Public — anyone can submit a booking
-router.post("/", bookingValidation, createBooking);
+// Authenticated — logged-in users can submit a booking
+router.post("/", authenticateToken, bookingValidation, createBooking);
+
+// Authenticated — get own bookings (must be before /:id to avoid route conflict)
+router.get("/my", authenticateToken, getMyBookings);
 
 // Admin-only routes
 router.get("/", authenticateToken, requireAdmin, getAllBookings);
