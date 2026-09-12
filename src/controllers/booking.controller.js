@@ -4,6 +4,10 @@ import { BookingModel } from "../models/booking.model.js";
 /** POST /api/bookings — authenticated users */
 export async function createBooking(req, res) {
   try {
+    if (req.user?.role === "admin") {
+      return res.status(403).json({ error: "Admins are not allowed to make bookings" });
+    }
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
