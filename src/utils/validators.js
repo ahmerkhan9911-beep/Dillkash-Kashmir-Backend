@@ -105,12 +105,9 @@ export const bookingValidation = [
     .trim()
     .notEmpty().withMessage("Phone number is required")
     .matches(/^(\+?92|0)?\d{10,11}$/).withMessage("Enter a valid phone number (e.g. 03001234567)"),
-  body("adults")
+  body("persons")
     .optional()
-    .isInt({ min: 1, max: 50 }).withMessage("Adults must be between 1 and 50"),
-  body("kids")
-    .optional()
-    .isInt({ min: 0, max: 30 }).withMessage("Kids must be between 0 and 30"),
+    .isInt({ min: 1, max: 100 }).withMessage("Persons must be between 1 and 100"),
 ];
 
 

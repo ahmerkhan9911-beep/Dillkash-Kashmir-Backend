@@ -7,8 +7,7 @@ export const CustomTourModel = {
     phoneNumber,
     email = "",
     preferredDate,
-    adults,
-    kids,
+    persons,
     hotelPreference,
     transportPreference,
     preferredDestinations,
@@ -16,17 +15,16 @@ export const CustomTourModel = {
   }) {
     const [result] = await pool.execute(
       `INSERT INTO custom_tour_requests (
-        user_id, name, phone_number, email, preferred_date, adults, kids, 
+        user_id, name, phone_number, email, preferred_date, persons, 
         hotel_preference, transport_preference, preferred_destinations, message
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         userId,
         name,
         phoneNumber,
         email,
         preferredDate || null,
-        adults || 1,
-        kids || 0,
+        persons || 1,
         hotelPreference || "",
         transportPreference || "",
         JSON.stringify(preferredDestinations || []),

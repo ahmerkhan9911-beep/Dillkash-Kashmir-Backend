@@ -10,16 +10,15 @@ export const BookingModel = {
    * @param {string} [data.email]
    * @param {string} [data.selectedTour]
    * @param {string} [data.travelDate]   - ISO date string "YYYY-MM-DD"
-   * @param {number} [data.adults]
-   * @param {number} [data.kids]
+   * @param {number} [data.persons]
    * @param {string} [data.roomType]
    * @returns {Promise<number>} The inserted row's id.
    */
-  async create({ userId = null, fullName, phoneNumber, email = "", selectedTour = "", travelDate = null, adults = 1, kids = 0, roomType = "Standard Double" }) {
+  async create({ userId = null, fullName, phoneNumber, email = "", selectedTour = "", travelDate = null, persons = 1, roomType = "Standard Double" }) {
     const [result] = await pool.execute(
-      `INSERT INTO bookings (user_id, full_name, phone_number, email, selected_tour, travel_date, adults, kids, room_type)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [userId, fullName, phoneNumber, email, selectedTour, travelDate || null, adults, kids, roomType]
+      `INSERT INTO bookings (user_id, full_name, phone_number, email, selected_tour, travel_date, persons, room_type)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [userId, fullName, phoneNumber, email, selectedTour, travelDate || null, persons, roomType]
     );
     return result.insertId;
   },

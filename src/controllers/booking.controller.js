@@ -13,7 +13,7 @@ export async function createBooking(req, res) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { fullName, phoneNumber, selectedTour, travelDate, adults, kids, room } = req.body;
+    const { fullName, phoneNumber, selectedTour, travelDate, persons, room } = req.body;
 
     const id = await BookingModel.create({
       userId: req.user.id,
@@ -22,8 +22,7 @@ export async function createBooking(req, res) {
       email: req.user.email || "",
       selectedTour: selectedTour || "",
       travelDate: travelDate || null,
-      adults: Number(adults) || 1,
-      kids: Number(kids) || 0,
+      persons: Number(persons) || 1,
       roomType: room || "Standard Double",
     });
 
