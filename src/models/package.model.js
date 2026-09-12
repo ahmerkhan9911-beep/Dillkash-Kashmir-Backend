@@ -109,9 +109,9 @@ export const PackageModel = {
       const [pkgResult] = await conn.execute(
         `INSERT INTO packages 
           (slug, title, short_description, full_description, duration_days, package_type, 
-           price, rating, reviews_count, image_url, departure_city, departure_day,
+           price_lahore, price_islamabad, rating, reviews_count, image_url, departure_city, departure_day,
            transport, accommodation, meals, featured, is_active, next_departure)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           slug,
           data.title,
@@ -119,7 +119,8 @@ export const PackageModel = {
           data.full_description || "",
           data.duration_days,
           data.package_type || "",
-          data.price,
+          data.price_lahore,
+          data.price_islamabad,
           data.rating || 0,
           data.reviews_count || 0,
           data.image_url || "",
@@ -217,14 +218,14 @@ export const PackageModel = {
       await conn.execute(
         `UPDATE packages SET
           slug = ?, title = ?, short_description = ?, full_description = ?,
-          duration_days = ?, package_type = ?, price = ?, rating = ?,
+          duration_days = ?, package_type = ?, price_lahore = ?, price_islamabad = ?, rating = ?,
           reviews_count = ?, image_url = ?, departure_city = ?, departure_day = ?,
           transport = ?, accommodation = ?, meals = ?, featured = ?,
           is_active = ?, next_departure = ?, updated_at = NOW()
          WHERE id = ?`,
         [
           slug, data.title, data.short_description || "", data.full_description || "",
-          data.duration_days, data.package_type || "", data.price, data.rating || 0,
+          data.duration_days, data.package_type || "", data.price_lahore, data.price_islamabad, data.rating || 0,
           data.reviews_count || 0, data.image_url || "", data.departure_city || "Lahore",
           data.departure_day || "", data.transport || "", data.accommodation || "",
           data.meals || "", data.featured ? 1 : 0, data.is_active !== false ? 1 : 0,

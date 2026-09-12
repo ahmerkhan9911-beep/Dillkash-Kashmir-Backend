@@ -18,7 +18,7 @@ export async function signup(req, res) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { full_name, email, phone, password } = req.body;
+    const { full_name, email, phone, city, password } = req.body;
 
     // Check duplicate email
     const existing = await UserModel.findByEmail(email);
@@ -35,6 +35,7 @@ export async function signup(req, res) {
       full_name,
       email,
       phone,
+      city: city || "Lahore",
       password_hash,
       role: "user",
     });
@@ -50,6 +51,7 @@ export async function signup(req, res) {
         full_name: user.full_name,
         email: user.email,
         phone: user.phone,
+        city: user.city,
         role: user.role,
       },
     });
@@ -112,6 +114,7 @@ export async function login(req, res) {
         full_name: user.full_name,
         email: user.email,
         phone: user.phone,
+        city: user.city,
         role: user.role,
       },
     });

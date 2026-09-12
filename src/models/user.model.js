@@ -11,17 +11,17 @@ export const UserModel = {
 
   async findById(id) {
     const [rows] = await pool.execute(
-      "SELECT id, full_name, email, phone, role, created_at, updated_at FROM users WHERE id = ?",
+      "SELECT id, full_name, email, phone, city, role, created_at, updated_at FROM users WHERE id = ?",
       [id]
     );
     return rows[0] || null;
   },
 
-  async create({ full_name, email, phone, password_hash, role = "user" }) {
+  async create({ full_name, email, phone, city = "Lahore", password_hash, role = "user" }) {
     const [result] = await pool.execute(
-      `INSERT INTO users (full_name, email, phone, password_hash, role)
-       VALUES (?, ?, ?, ?, ?)`,
-      [full_name, email, phone, password_hash, role]
+      `INSERT INTO users (full_name, email, phone, city, password_hash, role)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [full_name, email, phone, city, password_hash, role]
     );
     return result.insertId;
   },

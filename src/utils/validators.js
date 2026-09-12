@@ -25,6 +25,10 @@ export const signupValidation = [
       }
       return true;
     }),
+  body("city")
+    .optional()
+    .trim()
+    .isIn(["Lahore", "Islamabad"]).withMessage("City must be Lahore or Islamabad"),
 ];
 
 export const loginValidation = [
@@ -47,8 +51,10 @@ export const packageValidation = [
     .notEmpty().withMessage("Short description is required"),
   body("duration_days")
     .isInt({ min: 1, max: 30 }).withMessage("Duration must be 1-30 days"),
-  body("price")
-    .isFloat({ min: 0 }).withMessage("Price must be a positive number"),
+  body("price_lahore")
+    .isFloat({ min: 0 }).withMessage("Lahore price must be a positive number"),
+  body("price_islamabad")
+    .isFloat({ min: 0 }).withMessage("Islamabad price must be a positive number"),
 ];
 
 export const destinationValidation = [
