@@ -12,6 +12,7 @@ import uploadRoutes from "./routes/upload.routes.js";
 import blogRoutes from "./routes/blog.routes.js";
 import bookingRoutes from "./routes/booking.routes.js";
 import customTourRoutes from "./routes/custom-tour.routes.js";
+import { adminPromoRouter, promoRouter } from "./routes/promo-code.routes.js";
 import pool from "./config/db.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -74,6 +75,8 @@ app.use("/api/hotels", hotelRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/custom-tours", customTourRoutes);
+app.use("/api/admin/promo-codes", adminPromoRouter);
+app.use("/api/promo", promoRouter);
 app.use("/api", uploadRoutes);
 
 // Health check

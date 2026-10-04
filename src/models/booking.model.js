@@ -12,13 +12,28 @@ export const BookingModel = {
    * @param {string} [data.travelDate]   - ISO date string "YYYY-MM-DD"
    * @param {number} [data.persons]
    * @param {string} [data.roomType]
+   * @param {number|null} [data.totalPrice]      - Final (post-discount) price, computed server-side
+   * @param {string|null} [data.appliedPromo]    - Promo code used, if any
+   * @param {number|null} [data.discountAmount]  - PKR deducted by the promo code
    * @returns {Promise<number>} The inserted row's id.
    */
-  async create({ userId = null, fullName, phoneNumber, email = "", selectedTour = "", travelDate = null, persons = 1, roomType = "Standard Double" }) {
+  async create({
+    userId = null,
+    fullName,
+    phoneNumber,
+    email = "",
+    selectedTour = "",
+    travelDate = null,
+    persons = 1,
+    roomType = "Standard Double",
+    totalPrice = null,
+    appliedPromo = null,
+    discountAmount = null,
+  }) {
     const [result] = await pool.execute(
-      `INSERT INTO bookings (user_id, full_name, phone_number, email, selected_tour, travel_date, persons, room_type)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [userId, fullName, phoneNumber, email, selectedTour, travelDate || null, persons, roomType]
+      `INSERT INTO bookings (user_id, full_name, phone_number, email, selected_tour, travel_date, persons, room_type, total_price, applied_promo, discount_amount)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [userId, fullName, phoneNumber, email, selectedTour, travelDate || null, persons, roomType, totalPrice, appliedPromo, discountAmount]
     );
     return result.insertId;
   },

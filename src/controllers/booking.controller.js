@@ -1,5 +1,9 @@
 import { validationResult } from "express-validator";
 import { BookingModel } from "../models/booking.model.js";
+import { PackageModel } from "../models/package.model.js";
+import { UserModel } from "../models/user.model.js";
+import { PromoCodeModel, calculateDiscount, normalizePromoCode } from "../models/promo-code.model.js";
+import { INVALID_PROMO_MESSAGE } from "./promo-code.controller.js";
 
 /** POST /api/bookings — authenticated users */
 export async function createBooking(req, res) {
@@ -13,7 +17,40 @@ export async function createBooking(req, res) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { fullName, phoneNumber, selectedTour, travelDate, persons, room } = req.body;
+    const { fullName, phoneNumber, selectedTour, travelDate, persons, room, promoCode } = req.body;
+    const personCount = Number(persons) || 1;
+
+    // ── Server-side pricing (never trust prices sent by the client) ──
+    // Price comes from the DB package + the user's city stored in the DB.
+    let originalPrice = null;
+    const pkg = await PackageModel.findPricingByTitle(selectedTour);
+    if (pkg) {
+      const dbUser = await UserModel.findById(req.user.id);
+      const unitPrice = dbUser?.city === "Islamabad" ? Number(pkg.price_islamabad) : Number(pkg.price_lahore);
+      originalPrice = Math.round(unitPrice * personCount);
+    }
+
+    // ── Promo code verification ──
+    let appliedPromo = null;
+    let discountAmount = null;
+    let totalPrice = originalPrice;
+
+    const normalizedPromo = normalizePromoCode(promoCode);
+    if (normalizedPromo) {
+      const promo = await PromoCodeModel.findActiveByCode(normalizedPromo);
+      if (!promo) {
+        return res.status(400).json({ error: INVALID_PROMO_MESSAGE });
+      }
+      if (originalPrice === null) {
+        return res.status(400).json({
+          error: "We couldn't verify the price for this tour, so the promo code can't be applied. Please choose a listed package or remove the code.",
+        });
+      }
+      const result = calculateDiscount(originalPrice, Number(promo.discount_percent));
+      appliedPromo = promo.code;
+      discountAmount = result.discountAmount;
+      totalPrice = result.finalPrice;
+    }
 
     const id = await BookingModel.create({
       userId: req.user.id,
@@ -22,8 +59,11 @@ export async function createBooking(req, res) {
       email: req.user.email || "",
       selectedTour: selectedTour || "",
       travelDate: travelDate || null,
-      persons: Number(persons) || 1,
+      persons: personCount,
       roomType: room || "Standard Double",
+      totalPrice,
+      appliedPromo,
+      discountAmount,
     });
 
     const booking = await BookingModel.findById(id);
@@ -31,6 +71,12 @@ export async function createBooking(req, res) {
     res.status(201).json({
       message: "Booking submitted successfully",
       booking,
+      pricing: {
+        originalPrice,
+        discountAmount: discountAmount ?? 0,
+        totalPrice,
+        appliedPromo,
+      },
     });
   } catch (err) {
     console.error("Create booking error:", err);

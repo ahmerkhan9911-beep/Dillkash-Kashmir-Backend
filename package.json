@@ -11,7 +11,8 @@
     "db:seed": "node src/database/seed.js",
     "db:seed-admin": "node src/database/seed-admin.js",
     "init-db": "node src/database/setup.js",
-    "seed-admin": "node src/database/seed-admin.js"
+    "seed-admin": "node src/database/seed-admin.js",
+    "db:migrate-promo": "node src/database/run-migration-promo-codes.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

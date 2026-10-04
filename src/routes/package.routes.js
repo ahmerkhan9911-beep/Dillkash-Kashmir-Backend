@@ -7,6 +7,7 @@ import {
   deletePackage,
   togglePackageStatus,
   getStats,
+  getUniqueDestinations,
 } from "../controllers/package.controller.js";
 import { authenticateToken, requireAdmin } from "../middleware/auth.js";
 import { packageValidation } from "../utils/validators.js";
@@ -16,6 +17,7 @@ const router = Router();
 // Public routes
 router.get("/", getAllPackages);
 router.get("/admin/stats", authenticateToken, requireAdmin, getStats);
+router.get("/unique-destinations", authenticateToken, requireAdmin, getUniqueDestinations);
 router.get("/:idOrSlug", getPackage);
 
 // Admin-only routes

@@ -146,3 +146,15 @@ export async function getStats(req, res) {
     res.status(500).json({ error: "Database Error", details: err.message || "Failed to fetch stats" });
   }
 }
+
+/** GET /api/packages/unique-destinations — admin only */
+export async function getUniqueDestinations(req, res) {
+  try {
+    const destinations = await PackageModel.getUniqueDestinations();
+    res.json({ destinations });
+  } catch (err) {
+    console.error("Unique destinations error:", err);
+    res.status(500).json({ error: "Failed to fetch destinations" });
+  }
+}
+

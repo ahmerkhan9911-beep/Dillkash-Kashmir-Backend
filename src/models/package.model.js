@@ -97,6 +97,22 @@ export const PackageModel = {
   },
 
   /**
+   * Look up an active package's city prices by its exact title.
+   * Bookings store the tour title, so this is the source of truth for
+   * server-side price calculation.
+   * @param {string} title
+   * @returns {Promise<{ id: number, title: string, price_lahore: string, price_islamabad: string } | null>}
+   */
+  async findPricingByTitle(title) {
+    if (!title) return null;
+    const [rows] = await pool.execute(
+      "SELECT id, title, price_lahore, price_islamabad FROM packages WHERE title = ? AND is_active = 1 LIMIT 1",
+      [title]
+    );
+    return rows[0] ?? null;
+  },
+
+  /**
    * Create a package with all related data. Uses a transaction.
    */
   async create(data) {
@@ -121,8 +137,8 @@ export const PackageModel = {
           data.package_type || "",
           data.price_lahore,
           data.price_islamabad,
-          data.rating || 0,
-          data.reviews_count || 0,
+          data.rating ?? 5.0,
+          data.reviews_count ?? 0,
           data.image_url || "",
           data.departure_city || "Lahore",
           data.departure_day || "",
@@ -225,8 +241,8 @@ export const PackageModel = {
          WHERE id = ?`,
         [
           slug, data.title, data.short_description || "", data.full_description || "",
-          data.duration_days, data.package_type || "", data.price_lahore, data.price_islamabad, data.rating || 0,
-          data.reviews_count || 0, data.image_url || "", data.departure_city || "Lahore",
+          data.duration_days, data.package_type || "", data.price_lahore, data.price_islamabad, data.rating ?? 5.0,
+          data.reviews_count ?? 0, data.image_url || "", data.departure_city || "Lahore",
           data.departure_day || "", data.transport || "", data.accommodation || "",
           data.meals || "", data.featured ? 1 : 0, data.is_active !== false ? 1 : 0,
           data.next_departure || "", id,
@@ -368,5 +384,15 @@ export const PackageModel = {
   async countFeatured() {
     const [rows] = await pool.execute("SELECT COUNT(*) as total FROM packages WHERE featured = 1");
     return rows[0].total;
+  },
+
+  /**
+   * Return a flat, sorted array of every unique destination name across all packages.
+   */
+  async getUniqueDestinations() {
+    const [rows] = await pool.execute(
+      "SELECT DISTINCT destination_name FROM package_destinations ORDER BY destination_name"
+    );
+    return rows.map((r) => r.destination_name);
   },
 };

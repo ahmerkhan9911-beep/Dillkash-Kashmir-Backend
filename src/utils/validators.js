@@ -108,6 +108,20 @@ export const bookingValidation = [
   body("persons")
     .optional()
     .isInt({ min: 1, max: 100 }).withMessage("Persons must be between 1 and 100"),
+  body("promoCode")
+    .optional({ values: "falsy" })
+    .isString().withMessage("Promo code must be text")
+    .trim()
+    .isLength({ max: 50 }).withMessage("Promo code is too long"),
 ];
 
-
+export const promoCodeValidation = [
+  body("code")
+    .trim()
+    .notEmpty().withMessage("Promo code name is required")
+    .isLength({ min: 3, max: 30 }).withMessage("Promo code must be 3-30 characters")
+    .matches(/^[A-Za-z0-9_-]+$/).withMessage("Promo code may only contain letters, numbers, - and _"),
+  body("discountPercent")
+    .notEmpty().withMessage("Discount % is required")
+    .isInt({ min: 1, max: 100 }).withMessage("Discount must be a whole number between 1 and 100"),
+];
