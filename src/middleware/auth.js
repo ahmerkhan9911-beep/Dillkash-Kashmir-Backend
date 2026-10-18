@@ -24,6 +24,26 @@ export function authenticateToken(req, res, next) {
 }
 
 /**
+ * Optional authentication: attaches user if token is valid, but allows guest access if absent.
+ */
+export function optionalAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.startsWith("Bearer ")
+    ? authHeader.slice(7)
+    : null;
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decoded;
+    } catch {
+      // Proceed as unauthenticated guest
+    }
+  }
+  next();
+}
+
+/**
  * Requires the authenticated user to have role === "admin".
  * Must be used AFTER authenticateToken.
  */

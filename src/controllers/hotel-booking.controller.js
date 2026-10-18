@@ -1,7 +1,7 @@
 import { HotelBookingModel } from "../models/hotel-booking.model.js";
 import { HotelModel } from "../models/hotel.model.js";
 
-/** POST /api/hotel-bookings — authenticated users only */
+/** POST /api/hotel-bookings — lead generation inquiry */
 export async function createHotelBooking(req, res) {
   try {
     const {
@@ -10,14 +10,21 @@ export async function createHotelBooking(req, res) {
       checkOutDate,
       guestsCount,
       roomsCount,
-      roomType,
       guestName,
       guestPhone,
       guestEmail,
     } = req.body;
 
-    if (!hotelId || !checkInDate || !checkOutDate) {
-      return res.status(400).json({ error: "hotelId, checkInDate, checkOutDate are required" });
+    if (!hotelId) {
+      return res.status(400).json({ error: "hotelId is required" });
+    }
+
+    if (!guestName || !guestName.trim()) {
+      return res.status(400).json({ error: "Your name is required" });
+    }
+
+    if (!guestPhone || !guestPhone.trim()) {
+      return res.status(400).json({ error: "Phone / WhatsApp number is required" });
     }
 
     // Verify hotel exists
@@ -26,39 +33,28 @@ export async function createHotelBooking(req, res) {
       return res.status(404).json({ error: "Hotel not found" });
     }
 
-    // Calculate total price: nights * rooms * pricePerNight
-    const checkIn = new Date(checkInDate);
-    const checkOut = new Date(checkOutDate);
-    const nights = Math.max(1, Math.round((checkOut - checkIn) / (1000 * 60 * 60 * 24)));
-
-    // Use room price if a room type is specified and found
-    let pricePerNight = hotel.pricePerNight;
-    if (roomType && hotel.rooms) {
-      const room = hotel.rooms.find((r) => r.roomType === roomType);
-      if (room) pricePerNight = room.pricePerNight;
-    }
-
-    const totalPrice = nights * (roomsCount || 1) * pricePerNight;
-
     const bookingId = await HotelBookingModel.create({
       hotelId,
       userId: req.user?.id || null,
-      guestName: guestName || req.user?.full_name || "Guest",
-      guestPhone: guestPhone || req.user?.phone || "",
-      guestEmail: guestEmail || req.user?.email || "",
-      checkInDate,
-      checkOutDate,
-      guestsCount: guestsCount || 1,
-      roomsCount: roomsCount || 1,
-      roomType: roomType || "Standard",
-      totalPrice,
+      guestName: guestName.trim(),
+      guestPhone: guestPhone.trim(),
+      guestEmail: guestEmail ? guestEmail.trim() : (req.user?.email || ""),
+      checkInDate: checkInDate || new Date().toISOString().split("T")[0],
+      checkOutDate: checkOutDate || new Date(Date.now() + 86400000).toISOString().split("T")[0],
+      guestsCount: Math.max(1, parseInt(guestsCount, 10) || 1),
+      roomsCount: Math.max(1, parseInt(roomsCount, 10) || 1),
+      roomType: "Standard",
+      totalPrice: Number(hotel.pricePerNight) || 0,
     });
 
     const booking = await HotelBookingModel.findById(bookingId);
-    res.status(201).json({ message: "Hotel booking submitted successfully", booking });
+    res.status(201).json({
+      message: "Your request has been sent! Our team will confirm room availability with the hotel and contact you shortly.",
+      booking,
+    });
   } catch (err) {
     console.error("Create hotel booking error:", err);
-    res.status(500).json({ error: "Failed to create hotel booking" });
+    res.status(500).json({ error: "Failed to submit room availability request" });
   }
 }
 

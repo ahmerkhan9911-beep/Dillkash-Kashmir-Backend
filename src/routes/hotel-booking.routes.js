@@ -6,12 +6,14 @@ import {
   updateHotelBookingStatus,
   deleteHotelBooking,
 } from "../controllers/hotel-booking.controller.js";
-import { authenticateToken, requireAdmin } from "../middleware/auth.js";
+import { authenticateToken, optionalAuth, requireAdmin } from "../middleware/auth.js";
 
 const router = Router();
 
-// User routes (authenticated)
-router.post("/", authenticateToken, createHotelBooking);
+// Public / User route: Anyone can submit a room availability inquiry
+router.post("/", optionalAuth, createHotelBooking);
+
+// User route (authenticated): view own inquiries
 router.get("/my", authenticateToken, getMyHotelBookings);
 
 // Admin routes
