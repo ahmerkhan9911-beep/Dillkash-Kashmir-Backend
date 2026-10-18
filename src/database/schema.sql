@@ -136,9 +136,44 @@ CREATE TABLE IF NOT EXISTS hotels (
   amenities JSON,
   featured TINYINT(1) NOT NULL DEFAULT 0,
   is_active TINYINT(1) NOT NULL DEFAULT 1,
+  check_in_time VARCHAR(20) DEFAULT '2:00 PM',
+  check_out_time VARCHAR(20) DEFAULT '12:00 PM',
+  cancellation_policy TEXT,
+  house_rules TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_hotel_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS hotel_rooms (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  hotel_id INT UNSIGNED NOT NULL,
+  room_type VARCHAR(50) NOT NULL DEFAULT 'Standard',
+  price_per_night DECIMAL(10,2) NOT NULL DEFAULT 0,
+  max_guests TINYINT UNSIGNED NOT NULL DEFAULT 2,
+  available_rooms SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS hotel_bookings (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  hotel_id INT UNSIGNED NOT NULL,
+  user_id INT UNSIGNED DEFAULT NULL,
+  guest_name VARCHAR(150) NOT NULL,
+  guest_phone VARCHAR(30) NOT NULL,
+  guest_email VARCHAR(255) DEFAULT '',
+  check_in_date DATE NOT NULL,
+  check_out_date DATE NOT NULL,
+  guests_count TINYINT UNSIGNED NOT NULL DEFAULT 1,
+  rooms_count TINYINT UNSIGNED NOT NULL DEFAULT 1,
+  room_type VARCHAR(50) NOT NULL DEFAULT 'Standard',
+  total_price DECIMAL(10,2) NOT NULL DEFAULT 0,
+  status ENUM('Pending', 'Confirmed', 'Cancelled') NOT NULL DEFAULT 'Pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS blogs (
@@ -189,6 +224,7 @@ CREATE TABLE IF NOT EXISTS custom_tour_requests (
   email VARCHAR(255) DEFAULT '',
   preferred_date DATE DEFAULT NULL,
   persons TINYINT UNSIGNED NOT NULL DEFAULT 1,
+  duration VARCHAR(50) NOT NULL DEFAULT '',
   hotel_preference VARCHAR(100) DEFAULT '',
   transport_preference VARCHAR(100) DEFAULT '',
   preferred_destinations JSON,

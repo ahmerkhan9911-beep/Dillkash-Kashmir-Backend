@@ -12,6 +12,7 @@ import uploadRoutes from "./routes/upload.routes.js";
 import blogRoutes from "./routes/blog.routes.js";
 import bookingRoutes from "./routes/booking.routes.js";
 import customTourRoutes from "./routes/custom-tour.routes.js";
+import hotelBookingRoutes from "./routes/hotel-booking.routes.js";
 import { adminPromoRouter, promoRouter } from "./routes/promo-code.routes.js";
 import pool from "./config/db.js";
 
@@ -75,6 +76,7 @@ app.use("/api/hotels", hotelRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/custom-tours", customTourRoutes);
+app.use("/api/hotel-bookings", hotelBookingRoutes);
 app.use("/api/admin/promo-codes", adminPromoRouter);
 app.use("/api/promo", promoRouter);
 app.use("/api", uploadRoutes);
@@ -100,8 +102,21 @@ app.use((err, _req, res, _next) => {
 });
 
 // --------------- Start ---------------
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`✅ DillKash Kashmir API running on http://localhost:${PORT}`);
+});
+
+// Configure keep-alive timeouts to prevent ECONNRESET issues with reverse proxies (Vite dev proxy, Nginx, etc.)
+server.keepAliveTimeout = 65000;
+server.headersTimeout = 66000;
+
+// Catch unhandled errors gracefully so process doesn't crash abruptly
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
 });
 
 export default app;
