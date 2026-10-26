@@ -15,6 +15,7 @@ import customTourRoutes from "./routes/custom-tour.routes.js";
 import hotelBookingRoutes from "./routes/hotel-booking.routes.js";
 import { adminPromoRouter, promoRouter } from "./routes/promo-code.routes.js";
 import pool from "./config/db.js";
+import { autoMigrate } from "./database/auto-migrate.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -102,8 +103,13 @@ app.use((err, _req, res, _next) => {
 });
 
 // --------------- Start ---------------
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log(`✅ DillKash Kashmir API running on http://localhost:${PORT}`);
+  try {
+    await autoMigrate(pool);
+  } catch (migErr) {
+    console.error("[AutoMigrate] Initialization error:", migErr);
+  }
 });
 
 // Configure keep-alive timeouts to prevent ECONNRESET issues with reverse proxies (Vite dev proxy, Nginx, etc.)

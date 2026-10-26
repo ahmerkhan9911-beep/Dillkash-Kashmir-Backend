@@ -12,6 +12,7 @@
     "db:seed-admin": "node src/database/seed-admin.js",
     "init-db": "node src/database/setup.js",
     "seed-admin": "node src/database/seed-admin.js",
+    "db:migrate": "node src/database/auto-migrate.js",
     "db:migrate-promo": "node src/database/run-migration-promo-codes.js",
     "db:migrate-duration": "node src/database/run-migration-duration.js"
   },

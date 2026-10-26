@@ -12,6 +12,7 @@ export const signupValidation = [
     .normalizeEmail(),
   body("phone")
     .trim()
+    .customSanitizer((val) => (typeof val === "string" ? val.replace(/[\s-]/g, "") : val))
     .notEmpty().withMessage("Phone number is required")
     .matches(/^(\+?92|0)?\d{10,11}$/).withMessage("Enter a valid Pakistani phone number"),
   body("password")
@@ -103,6 +104,7 @@ export const bookingValidation = [
     .isLength({ min: 2, max: 150 }).withMessage("Name must be 2-150 characters"),
   body("phoneNumber")
     .trim()
+    .customSanitizer((val) => (typeof val === "string" ? val.replace(/[\s-]/g, "") : val))
     .notEmpty().withMessage("Phone number is required")
     .matches(/^(\+?92|0)?\d{10,11}$/).withMessage("Enter a valid phone number (e.g. 03001234567)"),
   body("persons")

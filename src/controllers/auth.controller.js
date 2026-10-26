@@ -4,9 +4,13 @@ import { validationResult } from "express-validator";
 import { UserModel } from "../models/user.model.js";
 
 function generateToken(user) {
+  const secret = process.env.JWT_SECRET || "dillkash_kashmir_jwt_secret_key_2026_change_in_production";
+  if (!process.env.JWT_SECRET) {
+    console.warn("⚠️ Warning: JWT_SECRET environment variable is not defined in server/.env. Using default fallback.");
+  }
   return jwt.sign(
     { id: user.id, email: user.email, role: user.role },
-    process.env.JWT_SECRET,
+    secret,
     { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
   );
 }
@@ -21,7 +25,17 @@ export async function signup(req, res) {
     const { full_name, email, phone, city, password } = req.body;
 
     // Check duplicate email
-    const existing = await UserModel.findByEmail(email);
+    let existing;
+    try {
+      existing = await UserModel.findByEmail(email);
+    } catch (dbErr) {
+      console.error("Database query failed during signup email check:", dbErr);
+      return res.status(500).json({
+        error: "Database error during account check",
+        details: dbErr.message,
+      });
+    }
+
     if (existing) {
       return res.status(400).json({ error: "An account with this email already exists" });
     }
@@ -51,13 +65,31 @@ export async function signup(req, res) {
         full_name: user.full_name,
         email: user.email,
         phone: user.phone,
-        city: user.city,
+        city: user.city || "Lahore",
         role: user.role,
       },
     });
   } catch (err) {
     console.error("Signup error:", err);
-    res.status(500).json({ error: "Failed to create account" });
+    if (err.code === "ER_DUP_ENTRY") {
+      return res.status(400).json({ error: "An account with this email already exists" });
+    }
+    if (err.code === "ER_ACCESS_DENIED_ERROR") {
+      return res.status(500).json({
+        error: "Database authentication failed. Please verify DB credentials in server/.env.",
+        details: err.message,
+      });
+    }
+    if (err.code === "ECONNREFUSED" || err.code === "PROTOCOL_CONNECTION_LOST") {
+      return res.status(500).json({
+        error: "Cannot connect to database. Please ensure MySQL is running.",
+        details: err.message,
+      });
+    }
+    res.status(500).json({
+      error: "Failed to create account",
+      details: err.message || "An unexpected error occurred during account creation.",
+    });
   }
 }
 
