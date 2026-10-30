@@ -61,10 +61,11 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json({ limit: "5mb" }));
+app.use(express.json({ limit: "10mb" }));
 
 // --------------- Static files ---------------
-// Serve uploaded images from server/public/uploads as /uploads/<filename>
+// Media (images, HEIC, short video clips) are now hosted on Cloudinary.
+// Local /uploads fallback is kept for any legacy relative URLs still in the DB.
 app.use(express.static(path.join(__dirname, "../public")));
 
 

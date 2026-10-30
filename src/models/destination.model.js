@@ -16,14 +16,14 @@ export const DestinationModel = {
     const placeholders = destIds.map(() => "?").join(",");
 
     const [galleryRows] = await pool.execute(
-      `SELECT destination_id, image_url FROM destination_gallery WHERE destination_id IN (${placeholders}) ORDER BY destination_id, sort_order ASC`,
+      `SELECT destination_id, media_url FROM destination_gallery WHERE destination_id IN (${placeholders}) ORDER BY destination_id, sort_order ASC`,
       destIds
     );
 
     const galleryMap = {};
     for (const g of galleryRows) {
       if (!galleryMap[g.destination_id]) galleryMap[g.destination_id] = [];
-      galleryMap[g.destination_id].push(g.image_url);
+      galleryMap[g.destination_id].push(g.media_url);
     }
 
     return rows.map((r) => ({
@@ -48,11 +48,11 @@ export const DestinationModel = {
     if (!dest) return null;
 
     const [galleryRows] = await pool.execute(
-      "SELECT image_url FROM destination_gallery WHERE destination_id = ? ORDER BY sort_order ASC",
+      "SELECT media_url FROM destination_gallery WHERE destination_id = ? ORDER BY sort_order ASC",
       [dest.id]
     );
 
-    const gallery = galleryRows.map((g) => g.image_url);
+    const gallery = galleryRows.map((g) => g.media_url);
 
     return {
       ...dest,
@@ -96,7 +96,7 @@ export const DestinationModel = {
           const img = data.gallery[i];
           if (img && typeof img === "string" && img.trim()) {
             await conn.execute(
-              "INSERT INTO destination_gallery (destination_id, image_url, sort_order) VALUES (?, ?, ?)",
+              "INSERT INTO destination_gallery (destination_id, media_url, sort_order) VALUES (?, ?, ?)",
               [destId, img.trim(), i]
             );
           }
@@ -155,7 +155,7 @@ export const DestinationModel = {
           const img = data.gallery[i];
           if (img && typeof img === "string" && img.trim()) {
             await conn.execute(
-              "INSERT INTO destination_gallery (destination_id, image_url, sort_order) VALUES (?, ?, ?)",
+              "INSERT INTO destination_gallery (destination_id, media_url, sort_order) VALUES (?, ?, ?)",
               [id, img.trim(), i]
             );
           }

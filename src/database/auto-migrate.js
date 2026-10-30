@@ -89,7 +89,7 @@ export async function autoMigrate(db = pool) {
       CREATE TABLE IF NOT EXISTS destination_gallery (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         destination_id INT UNSIGNED NOT NULL,
-        image_url TEXT NOT NULL,
+        media_url TEXT NOT NULL,
         sort_order TINYINT UNSIGNED DEFAULT 0,
         FOREIGN KEY (destination_id) REFERENCES destinations(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -234,6 +234,19 @@ export async function autoMigrate(db = pool) {
       await addColumnIfNotExists(db, "bookings", "total_price", "INT UNSIGNED DEFAULT NULL");
       await addColumnIfNotExists(db, "bookings", "applied_promo", "VARCHAR(50) DEFAULT NULL");
       await addColumnIfNotExists(db, "bookings", "discount_amount", "INT UNSIGNED DEFAULT NULL");
+    }
+
+    // Migrate destination_gallery: rename image_url → media_url to support videos
+    if (await tableExists(db, "destination_gallery")) {
+      const hasOldCol = await columnExists(db, "destination_gallery", "image_url");
+      const hasNewCol = await columnExists(db, "destination_gallery", "media_url");
+      if (hasOldCol && !hasNewCol) {
+        console.log("[AutoMigrate] Renaming 'image_url' → 'media_url' in destination_gallery...");
+        await db.execute(
+          "ALTER TABLE destination_gallery CHANGE COLUMN image_url media_url TEXT NOT NULL"
+        );
+        console.log("[AutoMigrate] ✓ Renamed column in destination_gallery.");
+      }
     }
 
     console.log("[AutoMigrate] ✓ Database schema is up to date and verified.");
